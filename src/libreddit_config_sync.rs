@@ -1,6 +1,6 @@
 use crate::miniflux::MinifluxContext;
 
-pub(crate) fn perform(context: MinifluxContext) {
+pub(crate) fn perform(context: &MinifluxContext) {
     let feeds = context.fetch_feeds();
 
     // Makes the libreddit feed entries look pretty when you "download" them in miniflux.

@@ -1,6 +1,7 @@
 
 mod miniflux;
 mod libreddit_config_sync;
+mod nitter_config_sync;
 
 use clap::{Parser, Subcommand};
 use miniflux::MinifluxContext;
@@ -16,18 +17,24 @@ struct Cli {
 
 #[derive(Subcommand, Debug)]
 enum Commands {
-    LibredditConfigSync
+    LibredditConfigSync,
+    NitterConfigSync,
+    AllConfigSync,
 }
 
 fn main() {
     let cli = Cli::parse();
 
+    let secret = rpassword::prompt_password("Secret: ").unwrap();
+    let miniflux_context = MinifluxContext::new(secret);
+
     match &cli.command {
-        Commands::LibredditConfigSync => {
-            let secret = rpassword::prompt_password("Secret: ").unwrap();
-            let miniflux_context = MinifluxContext::new(secret);
-            libreddit_config_sync::perform(miniflux_context);
-        }
+        Commands::LibredditConfigSync => libreddit_config_sync::perform(&miniflux_context),
+        Commands::NitterConfigSync => nitter_config_sync::perform(&miniflux_context),
+        Commands::AllConfigSync => {
+            libreddit_config_sync::perform(&miniflux_context);
+            nitter_config_sync::perform(&miniflux_context);
+        },
     }
 }
 
