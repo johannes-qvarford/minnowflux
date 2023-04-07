@@ -1,9 +1,22 @@
 use crate::miniflux::MinifluxContext;
 
+const BLOCKLIST_FILE: &str = include_str!("blocklist.txt");
+
 pub(crate) fn perform(context: &MinifluxContext) {
     let feeds = context.fetch_feeds();
-    let rules = rewrite_rules();
-    println!("RULES: {rules}");
+
+    let rewrite_rules = rewrite_rules();
+    println!("REWRITE RULES: {rewrite_rules}");
+
+    // (?i)(A|B|C)
+    // from file:
+    // A
+    // B
+    // C
+    let blocklist_rules = BLOCKLIST_FILE.split("\n").collect::<Vec<_>>();
+    let blocklist_rules = blocklist_rules.join("|");
+    let blocklist_rules = format!("(?i)({blocklist_rules})");
+    println!("BLOCKLIST RULES: {blocklist_rules}");
 
     // Makes the libreddit feed entries look pretty when you "download" them in miniflux.
     // We may still wish to enhance the feeds in giraffeed with some of this info to make kangaszuru's life easier.
@@ -11,7 +24,8 @@ pub(crate) fn perform(context: &MinifluxContext) {
         .filter(|feed| feed.feed_url.contains("nitter"))
         .map(|mut feed| {
             feed.scraper_rules = ".main-thread, .replies".to_owned();
-            feed.rewrite_rules = rules.clone();
+            feed.rewrite_rules = rewrite_rules.clone();
+            feed.blocklist_rules = blocklist_rules.clone();
             feed
         });
 

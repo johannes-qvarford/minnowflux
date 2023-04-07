@@ -61,7 +61,7 @@ pub(crate) struct Feed {
     pub scraper_rules: String,
     pub rewrite_rules: String,
     crawler: bool,
-    blocklist_rules: String,
+    pub blocklist_rules: String,
     keeplist_rules: String,
     user_agent: String,
     username: String,
